@@ -49,6 +49,8 @@ struct MemoryGame<CardContent> where CardContent: Equatable {
 //    return nil // bug 时
 //  }
   
+  //  自定义初始化，有这个自定义init 后 struct vars 默认的初始化将不执行
+  // cardsContentFactory 闭包标签，由 vm 初始化 MemoryGame 时传入 由它决定 MemoryGame 的 CardContent
   init(numberOfPairsOfCards: Int, cardsContentFactory: (Int) -> CardContent) {
     cards = Array<Card>()
     for pairIndex in 0..<numberOfPairsOfCards {
@@ -61,7 +63,7 @@ struct MemoryGame<CardContent> where CardContent: Equatable {
   struct Card: Identifiable {
     var isFaceUp: Bool = false
     var isMatched: Bool = false
-    var content: CardContent // 泛型使用
+    var content: CardContent // 来自 MemoryGame 的 CardContent 同样由外部初始化时传入决定
     var id: Int
   }
 }

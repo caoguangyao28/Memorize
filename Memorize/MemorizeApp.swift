@@ -9,6 +9,7 @@ import SwiftUI
 
 @main
 struct MemorizeApp: App {
+ //  实例游戏的 vm 交给 view
   let game = EmojiMemoryGame()
     var body: some Scene {
         WindowGroup {
