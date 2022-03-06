@@ -14,8 +14,6 @@ struct ContentView: View {
   var body: some View {
       ScrollView {
         LazyVGrid(columns: [GridItem(.adaptive(minimum: 75))]) {
-  //        HStack {
-            // 循环 需要 id 标识 这里将字符串本身作为唯一标识 最后一个 参数是函数-闭包 可以简写
           ForEach(viewModle.cards) { card in
             CardView(card: card)
               .aspectRatio(2/3, contentMode: .fit)
@@ -23,7 +21,6 @@ struct ContentView: View {
                 viewModle.choose(card)
               }
             }
-  //        }
         }
         
       }
@@ -43,7 +40,6 @@ struct CardView: View {
       let shape = RoundedRectangle(cornerRadius: 20)
       if card.isFaceUp {
         shape.fill().foregroundColor(.white)
-//        shape.stroke(lineWidth: 3)
         shape.strokeBorder(lineWidth: 3)
         Text(card.content).font(.largeTitle)
       } else if card.isMatched {
@@ -52,9 +48,6 @@ struct CardView: View {
         shape.fill()
       }
     }
-//    .onTapGesture { // view 加事件
-//      card.isFaceUp = !card.isFaceUp
-//    }
   }
 }
 
