@@ -11,7 +11,7 @@ struct MemoryGame<CardContent> where CardContent: Equatable {
 //  私有但外部可以看到，外部不可以修改
   private(set) var cards: Array<Card>
   private var indexOfTheOneAndOnlyFaceUpCard: Int?
-  
+  // mutating 修饰 方法可以修改 struct 内变量
   mutating func choose(_ card: Card) {
     // struct 是值类型  swift 赋值 函数入参都是 拷贝 不存在引用
     // let chooseIndex = index(of: card) 直接用 Array api 替换 这个函数
@@ -35,7 +35,6 @@ struct MemoryGame<CardContent> where CardContent: Equatable {
       cards[chooseIndex].isFaceUp.toggle()
     }
     
-    print(" cards choose \(card.isFaceUp)")
   }
   
  // 直接用 Array api 替换 这个函数
@@ -52,7 +51,8 @@ struct MemoryGame<CardContent> where CardContent: Equatable {
   //  自定义初始化，有这个自定义init 后 struct vars 默认的初始化将不执行
   // cardsContentFactory 闭包标签，由 vm 初始化 MemoryGame 时传入 由它决定 MemoryGame 的 CardContent
   init(numberOfPairsOfCards: Int, cardsContentFactory: (Int) -> CardContent) {
-    cards = Array<Card>()
+//    cards = Array<Card>() 简化
+    cards = []
     for pairIndex in 0..<numberOfPairsOfCards {
       let content = cardsContentFactory(pairIndex)
       cards.append(Card(content: content, id: pairIndex * 2))
@@ -61,9 +61,9 @@ struct MemoryGame<CardContent> where CardContent: Equatable {
   }
   
   struct Card: Identifiable {
-    var isFaceUp: Bool = false
-    var isMatched: Bool = false
-    var content: CardContent // 来自 MemoryGame 的 CardContent 同样由外部初始化时传入决定
-    var id: Int
+    var isFaceUp = false
+    var isMatched = false
+    let content: CardContent // 来自 MemoryGame 的 CardContent 同样由外部初始化时传入决定
+    let id: Int
   }
 }

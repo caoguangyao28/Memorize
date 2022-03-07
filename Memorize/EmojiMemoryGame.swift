@@ -14,9 +14,12 @@ import SwiftUI
 //}
 // ObservableObject 发布为 可观察、订阅对象, 发生变动时会获取一个 ···publisher 对象
 class EmojiMemoryGame: ObservableObject {
-  static let emojis = ["🚗", "🚕", "🚙", "🏎", "🚌", "🚓", "🚑", "🚒", "🚐", "🚚", "🚛", "🚜", "🏍", "🚲", "🚨", "🚔", "🚍", "🚘", "🚖", "🚠", "🚋", "🚄", "🚈", "🚂"]
+  // 类型别名
+  typealias Card = MemoryGame<String>.Card
   
-  static func createMemoryGame() -> MemoryGame<String> {
+  private static let emojis = ["🚗", "🚕", "🚙", "🏎", "🚌", "🚓", "🚑", "🚒", "🚐", "🚚", "🚛", "🚜", "🏍", "🚲", "🚨", "🚔", "🚍", "🚘", "🚖", "🚠", "🚋", "🚄", "🚈", "🚂"]
+  
+  private static func createMemoryGame() -> MemoryGame<String> {
     MemoryGame<String>(numberOfPairsOfCards: 4) { pairIndex in
       emojis[pairIndex]
     }
@@ -31,15 +34,16 @@ class EmojiMemoryGame: ObservableObject {
   
 //  进一步简写
 // @Published 推送变化的信息
-  @Published private var model: MemoryGame<String> = createMemoryGame()
+  @Published private var model = createMemoryGame()
   
-  var cards: Array<MemoryGame<String>.Card> {
+  // MemoryGame<String>.Card 可以使用类型别名
+  var cards: Array<Card> {
     model.cards
   }
   
   // MARK: intent(s)
   
-  func choose(_ card: MemoryGame<String>.Card) {
+  func choose(_ card: Card) {
     model.choose(card)
   }
 }
