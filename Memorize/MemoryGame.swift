@@ -97,7 +97,7 @@ struct MemoryGame<CardContent> where CardContent: Equatable {
   }
   
   struct Card: Identifiable {
-    var isFaceUp = false
+    var isFaceUp = true
     var isMatched = false
     let content: CardContent // 来自 MemoryGame 的 CardContent 同样由外部初始化时传入决定
     let id: Int

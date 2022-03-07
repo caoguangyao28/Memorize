@@ -37,18 +37,33 @@ struct CardView: View {
   let card: EmojiMemoryGame.Card
   
   var body: some View {
-    ZStack {
-      let shape = RoundedRectangle(cornerRadius: 20)
-      if card.isFaceUp {
-        shape.fill().foregroundColor(.white)
-        shape.strokeBorder(lineWidth: 3)
-        Text(card.content).font(.largeTitle)
-      } else if card.isMatched {
-        shape.opacity(0)
-      } else {
-        shape.fill()
+    
+    GeometryReader { geometry in
+      // 容器大小 定制 内容
+      ZStack {
+        let shape = RoundedRectangle(cornerRadius: DrawingConstans.cornerRadius)
+        if card.isFaceUp {
+          shape.fill().foregroundColor(.white)
+          shape.strokeBorder(lineWidth: DrawingConstans.lineWidth)
+          Text(card.content).font(font(in: geometry.size))
+        } else if card.isMatched {
+          shape.opacity(0)
+        } else {
+          shape.fill()
+        }
       }
     }
+    
+  }
+ //  用于根据容器 大小计算 文本图案大小
+  private func font(in size: CGSize) -> Font {
+    Font.system(size: min(size.width, size.height) * DrawingConstans.fontScale)
+  }
+  // 将响应式的一些比例值 定义为 struct 常量
+  private struct DrawingConstans {
+    static let cornerRadius:CGFloat = 20
+    static let lineWidth:CGFloat = 3
+    static let fontScale:CGFloat = 0.8
   }
 }
 
