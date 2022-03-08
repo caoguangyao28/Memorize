@@ -1,7 +1,7 @@
 //
 //  EmojiMemoryGameView.swift
 //  Memorize
-//
+//  视图修改- 所有卡片在 首屏展示 不出现滚动， 卡片大小动态计算 以保证 屏幕放得下
 //  Created by 曹光耀 on 2022/3/5.
 //
 
@@ -12,20 +12,21 @@ struct EmojiMemoryGameView: View {
   @ObservedObject var game: EmojiMemoryGame
 //  一但 viewModle 变化 则会更新 body
   var body: some View {
-      ScrollView {
-        LazyVGrid(columns: [GridItem(.adaptive(minimum: 75))]) {
-          ForEach(game.cards) { card in
-            CardView(card: card)
-              .aspectRatio(2/3, contentMode: .fit)
-              .onTapGesture {
-                game.choose(card)
-              }
-            }
-        }
-        
+
+    AspectVGrid(items: game.cards, aspectRatio: 2/3) { card in
+      // 如果在这里进行一些 非view 的操作
+      if card.isMatched && !card.isFaceUp {
+        Rectangle().opacity(0.6) // 条件满足时将导致 闭包没有返回 view  ，不符合 view 内容的推断要求 需要 AspectVGrid 处 使用到 @ViewBuilder
+      } else {
+        CardView(card: card)
+          .padding(4) // 因为容器的 间距被设置为了 0 这里添加卡片 padding 起到间隔
+          .onTapGesture {
+            game.choose(card)
+          }
       }
-      .foregroundColor(.red)
-      .padding(.horizontal)
+    }
+    .foregroundColor(.red)
+    .padding(.horizontal)
   }
   
   
@@ -61,9 +62,9 @@ struct CardView: View {
   }
   // 将响应式的一些比例值 定义为 struct 常量
   private struct DrawingConstans {
-    static let cornerRadius:CGFloat = 20
+    static let cornerRadius:CGFloat = 10
     static let lineWidth:CGFloat = 3
-    static let fontScale:CGFloat = 0.8
+    static let fontScale:CGFloat = 0.7
   }
 }
 
