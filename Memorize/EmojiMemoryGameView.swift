@@ -42,32 +42,34 @@ struct CardView: View {
     GeometryReader { geometry in
       // 容器大小 定制 内容
       ZStack {
-        let shape = RoundedRectangle(cornerRadius: DrawingConstans.cornerRadius)
-        if card.isFaceUp {
-          shape.fill().foregroundColor(.white)
-          shape.strokeBorder(lineWidth: DrawingConstans.lineWidth)
-          // shape circle
-//          Circle().padding(5).opacity(0.5)
-          Pie(startAngle: Angle(degrees: 0-90), endAngle: Angle(degrees: 110 - 90)).padding(5).opacity(0.5)
-          Text(card.content).font(font(in: geometry.size))
-        } else if card.isMatched {
-          shape.opacity(0)
-        } else {
-          shape.fill()
-        }
+        Pie(startAngle: Angle(degrees: 0-90), endAngle: Angle(degrees: 110 - 90))
+          .padding(5)
+          .opacity(0.5)
+        Text(card.content)
+          .rotationEffect(Angle.degrees(card.isMatched ? 360: 0))
+          .animation(Animation.linear(duration: 1).repeatForever(autoreverses: false))
+          .font(Font.system(size: DrawingConstans.fontSize))
+          .scaleEffect(scale(thatFits: geometry.size))// 调整到合适大小 且动画效果在屏幕翻转时不会异常
       }
+//      .modifier(Cardify(isFaceUp: card.isFaceUp)) // 把整个 ZStack 所有内容  传给 修改器 作为 content 类似于vue的 slot
+//      拓展 view 一个 cardify 方法后 简写 如下
+      .cardify(isFaceUp: card.isFaceUp)
     }
     
+  }
+  private func scale(thatFits size: CGSize) -> CGFloat {
+    min(size.width, size.height) / (DrawingConstans.fontSize / DrawingConstans.fontScale)
   }
  //  用于根据容器 大小计算 文本图案大小
   private func font(in size: CGSize) -> Font {
     Font.system(size: min(size.width, size.height) * DrawingConstans.fontScale)
   }
   // 将响应式的一些比例值 定义为 struct 常量
+
   private struct DrawingConstans {
-    static let cornerRadius:CGFloat = 10
-    static let lineWidth:CGFloat = 3
     static let fontScale:CGFloat = 0.65
+    static let fontSize:CGFloat = 32
+    
   }
 }
 
@@ -108,7 +110,8 @@ struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
       let game = EmojiMemoryGame()
       game.choose(game.cards.first!)
-      return EmojiMemoryGameView(game: game)//.preferredColorScheme(.dark)
+      return EmojiMemoryGameView(game: game)
+.previewInterfaceOrientation(.portrait)//.preferredColorScheme(.dark)
 //      EmojiMemoryGameView(viewModle: game).preferredColorScheme(.light)
     }
 }
