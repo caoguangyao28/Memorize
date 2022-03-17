@@ -10,6 +10,7 @@ import Foundation
 struct MemoryGame<CardContent> where CardContent: Equatable {
 //  私有但外部可以看到，外部不可以修改
   private(set) var cards: Array<Card>
+  // 这是个计算属性
   private var indexOfTheOneAndOnlyFaceUpCard: Int? {
     // 利用计算属性 完成 计算
     get { // 访问变量时 触发
@@ -94,6 +95,11 @@ struct MemoryGame<CardContent> where CardContent: Equatable {
       cards.append(Card(content: content, id: pairIndex * 2))
       cards.append(Card(content: content, id: pairIndex * 2 + 1))
     }
+  }
+  
+  mutating func shuffle() {
+    // 打乱卡片顺序
+    cards.shuffle()
   }
   
   struct Card: Identifiable {

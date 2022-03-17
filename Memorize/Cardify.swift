@@ -22,6 +22,7 @@ struct Cardify:ViewModifier {
       // 但需要 isFaceUp 为false 时 看不到 content
       content.opacity(isFaceUp ? 1 : 0)
     }
+    .rotation3DEffect(Angle.degrees(isFaceUp ? 0 : 180), axis: (x: 0, y: 1, z: 0))
     
   }
   

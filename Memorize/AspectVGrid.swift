@@ -13,7 +13,7 @@ struct AspectVGrid<Item,ItemView>: View where ItemView: View,Item: Identifiable 
   var content: (Item) -> ItemView
   
   // content 传过来的闭包如果不符合view 限定 需要告诉 swiftui 该函数 转换 viewbuilder
-  // 需要自定义 struct 的init
+  // 同时需要自定义 struct 的init
   
   init(items:[Item], aspectRatio:CGFloat, @ViewBuilder content: @escaping (Item) -> ItemView) { // @escaping 防止闭包逃离 struct self
     self.items = items
@@ -56,6 +56,7 @@ struct AspectVGrid<Item,ItemView>: View where ItemView: View,Item: Identifiable 
         break
       }
       columnCount += 1
+      // 这里需要搞明白一下 为啥 columnCount - 1  确保根据列数 得到的行数是对的
       rowCount = (itemCount + (columnCount - 1)) / columnCount
       
     } while columnCount < itemCount

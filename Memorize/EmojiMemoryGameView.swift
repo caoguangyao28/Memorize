@@ -12,21 +12,41 @@ struct EmojiMemoryGameView: View {
   @ObservedObject var game: EmojiMemoryGame
 //  一但 viewModle 变化 则会更新 body
   var body: some View {
-
+    VStack {
+      gameBody
+      shuffle
+    }
+    .padding()
+  }
+  
+  var gameBody: some View {
     AspectVGrid(items: game.cards, aspectRatio: 2/3) { card in
       // 如果在这里进行一些 非view 的操作
       if card.isMatched && !card.isFaceUp {
-        Rectangle().opacity(0.6) // 条件满足时将导致 闭包没有返回 view  ，不符合 view 内容的推断要求 需要 AspectVGrid 处 使用到 @ViewBuilder
+        
+//        Rectangle().opacity(0.6) // 条件满足时将导致 闭包没有返回 view  ，不符合 view 内容的推断要求 需要 AspectVGrid 处 使用到 @ViewBuilder
+        // 另一种好的 处理方法-- 清楚所有颜色 而不是矩形填充 原内容被 丢弃
+        Color.clear // 颜色作为一种视图
       } else {
         CardView(card: card)
           .padding(4) // 因为容器的 间距被设置为了 0 这里添加卡片 padding 起到间隔
           .onTapGesture {
-            game.choose(card)
+            withAnimation(.easeInOut(duration: 3)){
+              game.choose(card)
+            }
           }
       }
     }
     .foregroundColor(.red)
-    .padding(.horizontal)
+  }
+  
+  var shuffle: some View {
+    Button("shuffle") {
+      // 显式动画
+      withAnimation(.easeInOut(duration: 1)) {
+        game.shuffle()
+      }
+    }
   }
   
   
