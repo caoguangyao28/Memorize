@@ -11,6 +11,18 @@ struct EmojiMemoryGameView: View {
  // ObservedObject 观察订阅
   @ObservedObject var game: EmojiMemoryGame
 //  一但 viewModle 变化 则会更新 body
+  
+  // 临时状态数据 标记card 是否已出现在 aspectVGgrid 中
+  @State private var dealt = Set<Int>()
+  
+  private func deal(_ card: EmojiMemoryGame.Card) {
+    dealt.insert(card.id)
+  }
+  
+  private func isUndealt(_ card: EmojiMemoryGame.Card) -> Bool {
+    !dealt.contains(card.id)
+  }
+  
   var body: some View {
     VStack {
       gameBody
@@ -22,28 +34,44 @@ struct EmojiMemoryGameView: View {
   var gameBody: some View {
     AspectVGrid(items: game.cards, aspectRatio: 2/3) { card in
       // 如果在这里进行一些 非view 的操作
-      if card.isMatched && !card.isFaceUp {
+      // 添加 isUndealt 条件 判断 cards（默认初始化时 都未处理到 dealt） 是否处理到 容器，为了确保 AspectVGrid 先出现在屏幕中
+      if isUndealt(card) || (card.isMatched && !card.isFaceUp) { // 条件成立时 容器中无 cardview
         
-//        Rectangle().opacity(0.6) // 条件满足时将导致 闭包没有返回 view  ，不符合 view 内容的推断要求 需要 AspectVGrid 处 使用到 @ViewBuilder
+        // Rectangle().opacity(0.6) // 条件满足时将导致 闭包没有返回 view  ，不符合 view 内容的推断要求
+        // 需要 AspectVGrid 处 使用到 @ViewBuilder
         // 另一种好的 处理方法-- 清楚所有颜色 而不是矩形填充 原内容被 丢弃
         Color.clear // 颜色作为一种视图
+        
       } else {
         CardView(card: card)
           .padding(4) // 因为容器的 间距被设置为了 0 这里添加卡片 padding 起到间隔
+//          .transition(AnyTransition.scale.animation(Animation.easeInOut(duration: 1))) // 从无到有  从有到无会触发
+        // 发现没有触发 入场动画 -- 原因 没有出现或消失的地方
+        // AspectVGrid 和 CardView 是一体的，一同出现在屏幕，出现时才有 transition 逻辑，这时是无效的
+        // 解决方法， 1 确保 容器-AspectVGrid 先出现在屏幕（view 的 onAppear） 2，数据 dealt 跟踪card是否 添加到容器 3，给 card 加入 dealt
+          .transition(AnyTransition.asymmetric(insertion: .scale, removal: .opacity).animation(Animation.easeInOut)) // 分别知道入场动画 出场动画
           .onTapGesture {
-            withAnimation(.easeInOut(duration: 3)){
+            withAnimation {
               game.choose(card)
             }
           }
       }
     }
+    .onAppear(perform: { // gameBody 出现在屏幕时 触发
+      // deal cards 将所有 卡片放入 dealt
+      withAnimation { // 加入 从无到有 的显式 动画 这个动画好像非必要
+        for card in game.cards {
+          deal(card)
+        }
+      }
+    })
     .foregroundColor(.red)
   }
   
   var shuffle: some View {
     Button("shuffle") {
       // 显式动画
-      withAnimation(.easeInOut(duration: 1)) {
+      withAnimation {
         game.shuffle()
       }
     }
