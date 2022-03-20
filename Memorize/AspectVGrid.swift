@@ -2,6 +2,7 @@
 //  AspectVGrid.swift
 //  Memorize
 //  自定义 view 组合器 这是个 swiftui
+//  响应式的 grid 布局 一屏内显示 所有卡片元素
 //  Created by 曹光耀 on 2022/3/8.
 //
 
@@ -24,8 +25,10 @@ struct AspectVGrid<Item,ItemView>: View where ItemView: View,Item: Identifiable 
   var body: some View {
     GeometryReader { geometry in
       // geometry 拿到最外层容器 大小 计算合适的 卡片容器 grid 的 width
+      // vstack 垂直堆栈布局
       VStack { // 确保占有整个容器到顶部
         let width:CGFloat = widthThatFits(itemCount: items.count, in: geometry.size, itemAspectRatio: aspectRatio)
+        // 懒加载 grid 只在屏幕内才 加载
         LazyVGrid(columns: [adaptiveGridItem(width: width)], spacing: 0) {
           ForEach(items) { itme in
             // 交给传入闭包函数 生成 card content

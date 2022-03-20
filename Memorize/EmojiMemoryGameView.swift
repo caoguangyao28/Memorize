@@ -15,10 +15,11 @@ struct EmojiMemoryGameView: View {
   // 临时状态数据 标记card 是否已出现在 aspectVGgrid 中
   @State private var dealt = Set<Int>()
   
+  // card 已添加到 aspectGrid 容器
   private func deal(_ card: EmojiMemoryGame.Card) {
     dealt.insert(card.id)
   }
-  
+  // 判断 card 不在容器内时为 真
   private func isUndealt(_ card: EmojiMemoryGame.Card) -> Bool {
     !dealt.contains(card.id)
   }

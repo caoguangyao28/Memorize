@@ -1,7 +1,7 @@
 //
 //  MemoryGame.swift
 //  Memorize
-//  mvvm - molde
+//  mvvm - modle
 //  Created by 曹光耀 on 2022/3/5.
 //
 
@@ -20,7 +20,7 @@ struct MemoryGame<CardContent> where CardContent: Equatable {
 //          faceUpCardIndices.append(index)
 //        }
 //      }
-      // 进一步优化
+      // 进一步优化 获取卡片朝上的 卡片下标集合
       let faceUpCardIndices = cards.indices.filter({ cards[$0].isFaceUp }) // index in cards[index].isFaceUp
       
 //      if faceUpCardIndices.count == 1 {
