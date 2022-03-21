@@ -95,6 +95,8 @@ struct MemoryGame<CardContent> where CardContent: Equatable {
       cards.append(Card(content: content, id: pairIndex * 2))
       cards.append(Card(content: content, id: pairIndex * 2 + 1))
     }
+    // 初始化时 打乱卡片顺序
+    cards.shuffle()
   }
   
   mutating func shuffle() {
@@ -103,11 +105,76 @@ struct MemoryGame<CardContent> where CardContent: Equatable {
   }
   
   struct Card: Identifiable {
-    var isFaceUp = false
-    var isMatched = false
+    var isFaceUp = false { // 属性观察器
+      didSet {
+        if isFaceUp {
+          // 开启计时 -- 重置标识开始时间，且使用之前已进行多长时间 百分比等
+          startUsingBonusTime()
+        } else {
+          // 停止计时-- 记录下停止时 各标识的数据进行存储，并重置 lastFaceUpDate 为 nil -> 将会在再次开始时 赋予 新的 Date
+          stopUsingBonusTime()
+        }
+      }
+    }
+    var isMatched = false {
+      didSet {
+        stopUsingBonusTime()
+      }
+    }
     let content: CardContent // 来自 MemoryGame 的 CardContent 同样由外部初始化时传入决定
     let id: Int
+    
+    
+    
+    // MARK - Bonus Time  标识 启动 停止 各个状态点的 数据 与动画本身没有关系，也不是自动倒计时 计时器 ，ui 中会使用 起始点，剩余百分比 时长等属性，这些都是计算属性，访问时会动态计算
+    
+    var bonusTimeLimit: TimeInterval = 6 // 卡片朝上时 pie 开始动画，限定总动画时间为 6s
+    
+    var lastFaceUpDate: Date? //可选绑定 记录当前卡片变为朝上的 开始的时间点
+    
+    var pastFaceUpTime: TimeInterval = 0 // 用于计算已经持续动画的时间
+    
+    // how long this card has ever been face up 计算卡片已经 朝上的时间
+    // 计算属性 访问时会实施计算
+    private var faceupTime: TimeInterval {
+      if let lastFaceUpDate = self.lastFaceUpDate {
+        return pastFaceUpTime + Date().timeIntervalSince(lastFaceUpDate) // timeIntervalSince 相比于给定的时间 过去多长时间 返回值 是 TimeInterval
+      } else {
+        return pastFaceUpTime
+      }
+    }
+    
+    // 剩余可动画时长
+    var bonusTimeRemaining: TimeInterval {
+      max(0, bonusTimeLimit - faceupTime)
+    }
+    
+    // 剩余动画时长 占总限制时长比例
+    var bonusRemaining: Double {
+      (bonusTimeLimit > 0 && bonusTimeRemaining > 0) ? bonusTimeRemaining/bonusTimeLimit : 0
+    }
+    
+    var hasEarnedBonus: Bool {
+      isMatched && bonusTimeRemaining > 0
+    }
+    // 未被匹配且朝上且已动画时间小于bonusTimeLimit限制
+    var isConsumingBonusTime: Bool {
+      isFaceUp && !isMatched && bonusTimeRemaining > 0
+    }
+    
+    private mutating func startUsingBonusTime() {
+      if isConsumingBonusTime, lastFaceUpDate == nil {
+        lastFaceUpDate = Date()
+      }
+    }
+    
+    private mutating func stopUsingBonusTime() {
+      pastFaceUpTime = faceupTime
+      self.lastFaceUpDate = nil
+    }
   }
+  
+  
 }
 
 // 给Array 拓展一个属性
